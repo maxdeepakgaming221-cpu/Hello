@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hello dosto 😊🙂</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
-        /* Mobile full screen exact height fix */
         html, body {
             height: 100dvh;
             width: 100vw;
@@ -18,54 +17,40 @@
         }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.25); border-radius: 4px; }
-        
         .whatsapp-wallpaper {
             background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
             background-repeat: repeat;
         }
         .msg-actions { display: none; }
         .msg-bubble:hover .msg-actions, .msg-bubble:active .msg-actions { display: flex; }
-        
-        /* Clean audio player width */
-        audio {
-            height: 36px;
-            width: 220px;
-            max-width: 100%;
-            border-radius: 20px;
-        }
+        audio { height: 36px; width: 220px; max-width: 100%; border-radius: 20px; }
     </style>
 </head>
 <body id="bodyTheme" class="bg-[#efeae2] flex justify-center items-center">
 
-    <!-- Main Full-Screen Mobile/Desktop App Container -->
     <div id="appContainer" class="w-full max-w-2xl h-full bg-[#efeae2] flex flex-col relative shadow-2xl overflow-hidden">
         
-        <!-- WhatsApp Header -->
+        <!-- Header -->
         <div id="headerTheme" class="bg-[#00a884] text-white px-3 py-2.5 flex items-center justify-between shadow-md z-30 shrink-0">
             <div class="flex items-center space-x-2.5 cursor-pointer overflow-hidden" onclick="editGroupName()">
-                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shrink-0">
-                    👥
-                </div>
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shrink-0">👥</div>
                 <div class="truncate">
                     <div class="flex items-center space-x-1">
                         <h1 id="groupTitle" class="font-bold text-base truncate">Hello dosto 😊🙂</h1>
                         <span class="text-xs text-yellow-200">✏️</span>
                     </div>
-                    <p id="statusText" class="text-[11px] text-green-100 truncate">कनेक्ट हो रहा है...</p>
+                    <p id="statusText" class="text-[11px] text-green-100 truncate">ऑनलाइन सर्वर से जुड़ा है</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-1 shrink-0 relative">
-                <button onclick="toggleSearchBox()" class="p-2 hover:bg-black/10 rounded-full transition" title="खोजें">🔍</button>
-                <button onclick="toggleThreeDotMenu()" class="p-2 hover:bg-black/10 rounded-full transition text-lg font-bold px-2.5" title="मेन्यू">⋮</button>
+                <button onclick="toggleSearchBox()" class="p-2 hover:bg-black/10 rounded-full transition">🔍</button>
+                <button onclick="toggleThreeDotMenu()" class="p-2 hover:bg-black/10 rounded-full transition text-lg font-bold px-2.5">⋮</button>
 
-                <!-- 3-Dot Menu Dropdown -->
                 <div id="threeDotDropdown" class="hidden absolute right-0 top-12 bg-white text-gray-800 shadow-2xl rounded-xl py-1.5 w-56 z-50 border border-gray-200 text-sm">
-                    <button onclick="showGroupInfoModal(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5"><span>ℹ️</span><span>ऑनलाइन मेंबर्स देखें</span></button>
                     <button onclick="changeMyName(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5"><span>👤</span><span>अपना नाम बदलें</span></button>
                     <button onclick="editGroupName(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5"><span>✏️</span><span>ग्रुप का नाम बदलें</span></button>
-                    <button onclick="toggleTheme(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5"><span>🌓</span><span>डार्क / लाइट मोड</span></button>
-                    <button onclick="clearChatForMe(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5 text-red-600 border-t"><span>🧹</span><span>मेरी चैट साफ करें</span></button>
+                    <button onclick="clearChatForMe(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2.5 text-red-600 border-t"><span>🧹</span><span>मेरी स्क्रीन साफ करें</span></button>
                 </div>
             </div>
         </div>
@@ -79,16 +64,8 @@
         <!-- Messages Area -->
         <div id="messagesContainer" class="flex-1 p-3 overflow-y-auto space-y-2.5 flex flex-col whatsapp-wallpaper">
             <div class="bg-[#fff3c4] text-gray-800 self-center text-[11px] px-3 py-1 rounded-lg shadow-sm text-center max-w-[92%]">
-                🔒 सभी संदेश एंड-टू-एंड सुरक्षित हैं। फोटो या वीडियो पर टच करके फुल स्क्रीन देखें।
+                ⏳ सुरक्षा सूचना: चैट 24 घंटे में ऑटो-डिलीट होती है। रिएक्शन पर क्लिक करके देखें किसने क्या रिएक्ट किया!
             </div>
-        </div>
-
-        <!-- Typing Indicator -->
-        <div id="typingIndicator" class="hidden px-4 py-1 text-[11px] text-[#00a884] font-semibold bg-white/90 shrink-0"></div>
-
-        <!-- Media Transfer Progress -->
-        <div id="uploadStatus" class="hidden bg-[#00a884] text-white text-xs px-4 py-1.5 text-center font-medium shrink-0">
-            फाइल भेजी जा रही है... <span id="uploadPercent">0%</span> ⏳
         </div>
 
         <!-- Reply Preview -->
@@ -100,32 +77,26 @@
             <button onclick="cancelReply()" class="text-gray-400 font-bold ml-2 p-1">✖</button>
         </div>
 
-        <!-- Bottom Input Bar (Textarea for multi-line paragraphs) -->
+        <!-- Input Bar -->
         <div id="inputBarTheme" class="bg-[#f0f2f5] p-2 flex items-end space-x-1.5 z-20 border-t border-gray-200 shrink-0">
-            <label class="cursor-pointer text-gray-600 hover:text-[#00a884] p-2.5 transition text-xl shrink-0" title="फोटो, वीडियो या फाइल">
+            <label class="cursor-pointer text-gray-600 hover:text-[#00a884] p-2.5 transition text-xl shrink-0" title="फोटो या वीडियो">
                 📎
                 <input type="file" id="mediaInput" accept="*/*" class="hidden" onchange="sendMediaFile(event)">
             </label>
 
-            <button id="micBtn" onclick="toggleAudioRecord()" class="text-gray-600 hover:text-[#00a884] p-2.5 transition text-xl shrink-0" title="वॉइस नोट">
-                🎤
-            </button>
-
-            <!-- Multi-line Textarea (Enter creates new line, does NOT send) -->
-            <textarea id="messageInput" rows="1" placeholder="संदेश लिखें..." oninput="autoResizeTextarea(this); handleTyping();" class="flex-1 bg-white text-gray-800 rounded-2xl px-3.5 py-2.5 text-sm focus:outline-none border border-gray-300 resize-none max-h-28 overflow-y-auto leading-snug"></textarea>
+            <textarea id="messageInput" rows="1" placeholder="संदेश लिखें..." oninput="autoResizeTextarea(this)" class="flex-1 bg-white text-gray-800 rounded-2xl px-3.5 py-2.5 text-sm focus:outline-none border border-gray-300 resize-none max-h-28 overflow-y-auto leading-snug"></textarea>
             
-            <!-- Explicit Send Button -->
             <button onclick="sendMessage()" class="bg-[#00a884] hover:bg-[#008069] text-white w-11 h-11 rounded-full flex items-center justify-center shadow-md transition shrink-0 text-lg">
                 ➤
             </button>
         </div>
 
-        <!-- Name Entry Overlay Popup (Blurred background hiding chat until name is entered) -->
+        <!-- Name Entry Modal -->
         <div id="nameOverlayModal" class="hidden absolute inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-5 z-50">
             <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
                 <div class="text-4xl mb-2">👋</div>
                 <h2 class="text-xl font-bold text-[#00a884] mb-1">Hello dosto 😊🙂</h2>
-                <p class="text-xs text-gray-500 mb-4">ग्रुप चैट देखने और बात करने के लिए अपना नाम लिखें (यह आपके फोन में सेव रहेगा):</p>
+                <p class="text-xs text-gray-500 mb-4">चैट में शामिल होने के लिए अपना नाम लिखें:</p>
                 <input type="text" id="userNameInput" placeholder="अपना नाम लिखें..." class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-sm mb-4 focus:outline-none focus:border-[#00a884] text-gray-800">
                 <button onclick="saveNameAndJoin()" class="w-full bg-[#00a884] hover:bg-[#008069] text-white font-bold py-3 rounded-xl shadow-lg text-sm">
                     चैट शुरू करें 🚀
@@ -133,19 +104,7 @@
             </div>
         </div>
 
-        <!-- Full-Screen Media Lightbox Viewer (WhatsApp Style Preview) -->
-        <div id="mediaLightbox" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col justify-between p-4">
-            <div class="flex justify-between items-center text-white">
-                <span id="lightboxTitle" class="text-xs truncate max-w-[70%] text-gray-300">मीडिया प्रीव्यू</span>
-                <div class="flex items-center space-x-4">
-                    <a id="lightboxDownloadBtn" href="#" download class="bg-white/20 hover:bg-white/30 p-2 rounded-full text-sm" title="डाउनलोड">⬇️</a>
-                    <button onclick="closeLightbox()" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full text-sm font-bold">✖</button>
-                </div>
-            </div>
-            <div id="lightboxContent" class="flex-1 flex items-center justify-center overflow-hidden my-2"></div>
-        </div>
-
-        <!-- Info Modal (Group Members & Read Receipts) -->
+        <!-- Message Info & Reactions Details Modal -->
         <div id="infoModal" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
             <div class="bg-white text-gray-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
                 <div class="flex justify-between items-center border-b pb-2 mb-3">
@@ -158,6 +117,311 @@
 
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const socket = io();
+        let myName = localStorage.getItem('wa_device_username') || '';
+        let groupName = 'Hello dosto 😊🙂';
+        let replyToMsg = null;
+
+        // Keep all messages in memory for info inspection
+        let allMessagesCache = {};
+
+        window.onload = function() {
+            if (!myName) {
+                document.getElementById('nameOverlayModal').classList.remove('hidden');
+            }
+        };
+
+        function saveNameAndJoin() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if (!name) { alert("कृपया नाम लिखें!"); return; }
+            myName = name;
+            localStorage.setItem('wa_device_username', myName);
+            document.getElementById('nameOverlayModal').classList.add('hidden');
+        }
+
+        function changeMyName() {
+            const newName = prompt("अपना नया नाम लिखें:", myName);
+            if (newName && newName.trim() !== "") {
+                myName = newName.trim();
+                localStorage.setItem('wa_device_username', myName);
+            }
+        }
+
+        // Socket Listeners
+        socket.on('load_history', (messages) => {
+            messages.forEach(msg => {
+                allMessagesCache[msg._id] = msg;
+                renderMessage(msg);
+                if (msg.sender !== myName) {
+                    socket.emit('mark_read', { msgId: msg._id, reader: myName });
+                }
+            });
+        });
+
+        socket.on('receive_message', (msg) => {
+            allMessagesCache[msg._id] = msg;
+            renderMessage(msg);
+            if (msg.sender !== myName) {
+                socket.emit('mark_read', { msgId: msg._id, reader: myName });
+            }
+        });
+
+        socket.on('update_read_receipt', ({ msgId, readBy }) => {
+            if (allMessagesCache[msgId]) allMessagesCache[msgId].readBy = readBy;
+            const tick = document.getElementById(`tick-${msgId}`);
+            if (tick && readBy.length > 0) {
+                tick.innerText = '✓✓';
+                tick.className = 'text-blue-500 font-bold ml-1';
+            }
+        });
+
+        socket.on('update_reactions', ({ msgId, reactions }) => {
+            if (allMessagesCache[msgId]) allMessagesCache[msgId].reactions = reactions;
+            renderReactionsUI(msgId, reactions);
+        });
+
+        socket.on('group_name_updated', (name) => {
+            groupName = name;
+            document.getElementById('groupTitle').innerText = groupName;
+        });
+
+        socket.on('message_deleted', (msgId) => {
+            const el = document.getElementById(msgId);
+            if (el) {
+                const body = el.querySelector('.msg-body');
+                if (body) body.innerHTML = `<span class="italic text-gray-400 text-xs">🚫 यह संदेश डिलीट कर दिया गया है</span>`;
+            }
+        });
+
+        function sendMessage() {
+            if (!myName) { document.getElementById('nameOverlayModal').classList.remove('hidden'); return; }
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            socket.emit('send_message', {
+                groupName,
+                sender: myName,
+                type: 'text',
+                text,
+                replyTo: replyToMsg
+            });
+
+            input.value = '';
+            input.style.height = 'auto';
+            cancelReply();
+        }
+
+        function sendMediaFile(event) {
+            if (!myName) { document.getElementById('nameOverlayModal').classList.remove('hidden'); return; }
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                socket.emit('send_message', {
+                    groupName,
+                    sender: myName,
+                    type: 'media',
+                    mediaUrl: e.target.result,
+                    fileName: file.name,
+                    fileType: file.type || 'application/octet-stream',
+                    replyTo: replyToMsg
+                });
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function renderMessage(msg) {
+            const container = document.getElementById('messagesContainer');
+            if (document.getElementById(msg._id)) return; // Prevent duplicate
+
+            const isSent = msg.sender === myName;
+            const wrapper = document.createElement('div');
+            wrapper.id = msg._id;
+            wrapper.className = `msg-bubble relative max-w-[82%] px-3 py-2 rounded-2xl text-sm shadow-sm break-words mb-1 ${
+                isSent ? 'bg-[#dcf8c6] text-gray-900 self-end rounded-tr-none' : 'bg-white text-gray-900 self-start rounded-tl-none border border-gray-200'
+            }`;
+
+            let html = '';
+            if (!isSent) html += `<div class="text-[11px] font-bold text-[#075e54] mb-0.5">${msg.sender}</div>`;
+
+            if (msg.replyTo) {
+                html += `<div class="bg-black/5 border-l-3 border-[#00a884] p-1.5 rounded text-xs mb-1.5 text-gray-600">
+                            <div class="font-bold text-[10px] text-[#00a884]">${msg.replyTo.sender}</div>
+                            <div class="truncate">${msg.replyTo.text}</div>
+                         </div>`;
+            }
+
+            if (msg.type === 'text') {
+                html += `<div class="msg-body leading-relaxed whitespace-pre-wrap">${msg.text.replace(/\n/g, '<br>')}</div>`;
+            } else if (msg.type === 'media') {
+                let mediaHtml = '';
+                if (msg.fileType.startsWith('video/')) {
+                    mediaHtml = `<video src="${msg.mediaUrl}" controls class="w-full rounded-xl max-h-60 bg-black object-cover mb-1"></video>`;
+                } else if (msg.fileType.startsWith('image/')) {
+                    mediaHtml = `<img src="${msg.mediaUrl}" class="w-full rounded-xl max-h-60 object-cover mb-1">`;
+                } else if (msg.fileType.startsWith('audio/')) {
+                    mediaHtml = `<audio src="${msg.mediaUrl}" controls class="w-full mb-1"></audio>`;
+                } else {
+                    mediaHtml = `<div class="text-xs font-semibold text-gray-700 bg-black/5 p-2 rounded-lg mb-1">📄 ${msg.fileName}</div>`;
+                }
+                html += `<div class="msg-body">${mediaHtml}<a href="${msg.mediaUrl}" download="${msg.fileName}" class="text-[11px] text-blue-600 font-bold underline">डाउनलोड ⬇️</a></div>`;
+            }
+
+            // Reactions container badge
+            html += `<div id="reactions-container-${msg._id}" class="flex flex-wrap gap-1 mt-1 cursor-pointer" onclick="showReactionDetails('${msg._id}')"></div>`;
+
+            // Time & Ticks
+            const hasRead = msg.readBy && msg.readBy.length > 0;
+            const tickColor = hasRead ? 'text-blue-500 font-bold' : 'text-gray-400';
+            const tickHtml = isSent ? `<span id="tick-${msg._id}" class="${tickColor} ml-1">✓✓</span>` : '';
+            html += `<div class="flex justify-end items-center space-x-1 mt-1 text-[10px] text-gray-500">
+                        <span onclick="showMessageInfo('${msg._id}')" class="cursor-pointer">${msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                        ${tickHtml}
+                     </div>`;
+
+            // Hover Action Menu (With Custom Emoji Picker '+' button)
+            const safeText = msg.type === 'text' ? msg.text.replace(/'/g, "\\'").replace(/\n/g, " ") : msg.fileName;
+            html += `<div class="msg-actions absolute -top-9 ${isSent ? 'right-0' : 'left-0'} bg-white shadow-xl rounded-full px-2 py-1 space-x-1.5 text-xs border border-gray-200 z-20 items-center">
+                        <button onclick="addReaction('${msg._id}', '👍')">👍</button>
+                        <button onclick="addReaction('${msg._id}', '❤️')">❤️</button>
+                        <button onclick="addReaction('${msg._id}', '😂')">😂</button>
+                        <button onclick="openCustomEmojiPicker('${msg._id}')" class="bg-gray-100 hover:bg-gray-200 px-1.5 rounded-full font-bold" title="अपनी मर्जी का इमोजी चुनें (+)">➕</button>
+                        <button onclick="setReply('${msg.sender}', '${safeText}')">↩️</button>
+                        ${isSent ? `<button onclick="deleteForEveryone('${msg._id}')" class="text-red-500 font-bold">❌</button>` : ''}
+                     </div>`;
+
+            wrapper.innerHTML = html;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+
+            if (msg.reactions && msg.reactions.length > 0) {
+                renderReactionsUI(msg._id, msg.reactions);
+            }
+        }
+
+        // Custom Emoji Picker Prompt (+)
+        function openCustomEmojiPicker(msgId) {
+            const customEmoji = prompt("कोई भी इमोजी टाइप करें या पेस्ट करें (जैसे 🔥, 🎉, 🤩):", "🔥");
+            if (customEmoji && customEmoji.trim() !== "") {
+                addReaction(msgId, customEmoji.trim());
+            }
+        }
+
+        function addReaction(msgId, emoji) {
+            if (!myName) { document.getElementById('nameOverlayModal').classList.remove('hidden'); return; }
+            socket.emit('add_reaction', { msgId, user: myName, emoji });
+        }
+
+        function renderReactionsUI(msgId, reactions) {
+            const container = document.getElementById(`reactions-container-${msgId}`);
+            if (!container) return;
+            if (!reactions || reactions.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Group reactions by emoji count
+            let counts = {};
+            reactions.forEach(r => {
+                counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+            });
+
+            let html = '';
+            for (let emoji in counts) {
+                html += `<span class="bg-white/80 border border-gray-300 rounded-full px-2 py-0.5 text-xs shadow-sm flex items-center space-x-1">
+                            <span>${emoji}</span>
+                            <span class="text-[10px] font-bold text-gray-600">${counts[emoji]}</span>
+                         </span>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // Show who read & who reacted (WhatsApp style Info)
+        function showMessageInfo(msgId) {
+            const msg = allMessagesCache[msgId];
+            if (!msg) return;
+
+            document.getElementById('modalTitle').innerText = "संदेश की जानकारी (Message Info)";
+            let bodyHtml = `<div class="mb-3"><p class="font-bold text-[#00a884] mb-1">✓✓ इन्होंने पढ़ा:</p>`;
+            if (!msg.readBy || msg.readBy.length === 0) {
+                bodyHtml += `<p class="text-gray-500 italic">अभी किसी ने नहीं पढ़ा।</p>`;
+            } else {
+                msg.readBy.forEach(r => {
+                    bodyHtml += `<div class="flex justify-between border-b py-1"><span>👤 ${r.reader}</span><span class="text-gray-500">${r.time}</span></div>`;
+                });
+            }
+            bodyHtml += `</div>`;
+
+            // Reactions details
+            bodyHtml += `<div><p class="font-bold text-blue-600 mb-1">💬 रिएक्शन विवरण:</p>`;
+            if (!msg.reactions || msg.reactions.length === 0) {
+                bodyHtml += `<p class="text-gray-500 italic">कोई रिएक्शन नहीं है।</p>`;
+            } else {
+                msg.reactions.forEach(rc => {
+                    bodyHtml += `<div class="flex justify-between border-b py-1"><span>👤 ${rc.user}</span><span class="text-base">${rc.emoji}</span></div>`;
+                });
+            }
+            bodyHtml += `</div>`;
+
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+        function showReactionDetails(msgId) {
+            showMessageInfo(msgId);
+        }
+
+        function closeInfoModal() {
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+
+        function deleteForEveryone(msgId) {
+            if (confirm("क्या आप इस संदेश को सबके लिए डिलीट करना चाहते हैं?")) {
+                socket.emit('delete_message', msgId);
+            }
+        }
+
+        function setReply(sender, text) {
+            replyToMsg = { sender, text };
+            document.getElementById('replySender').innerText = sender;
+            document.getElementById('replyText').innerText = text;
+            document.getElementById('replyPreview').classList.remove('hidden');
+            document.getElementById('messageInput').focus();
+        }
+
+        function cancelReply() {
+            replyToMsg = null;
+            document.getElementById('replyPreview').classList.add('hidden');
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
+        function toggleThreeDotMenu() {
+            document.getElementById('threeDotDropdown').classList.toggle('hidden');
+        }
+
+        function toggleSearchBox() {
+            const sb = document.getElementById('searchBarContainer');
+            sb.classList.toggle('hidden');
+        }
+
+        function searchMessages(query) {
+            const q = query.toLowerCase();
+            document.querySelectorAll('.msg-bubble').forEach(b => {
+                b.style.display = (b.innerText.toLowerCase().includes(q) || q === '') ? 'block' : 'none';
+            });
+        }
+
+        function clearChatForMe() {
+            if (confirm("स्क्रीन साफ करें?")) document.getElementById('messagesContainer').innerHTML = '';
+        }
+    </script>
 </body>
-</html>
+    </html>
