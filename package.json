@@ -1,0 +1,14 @@
+{
+  "name": "whatsapp-group-chat",
+  "version": "1.0.0",
+  "description": "WhatsApp group chat with auto-delete and custom reactions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1",
+    "socket.io": "^4.7.5"
+  }
+}
