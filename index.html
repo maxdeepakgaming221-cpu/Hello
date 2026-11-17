@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello dosto 😊🙂 - WhatsApp Group</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        .reaction-picker { display: none; }
+        .msg-bubble:hover .reaction-picker { display: flex; }
+        .whatsapp-wallpaper {
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body id="bodyTheme" class="h-screen flex items-center justify-center p-0 md:p-3 bg-[#efeae2] transition-colors duration-300">
+
+    <!-- Main WhatsApp Frame -->
+    <div id="appContainer" class="w-full max-w-2xl h-full md:h-[96vh] bg-[#efeae2] md:rounded-xl shadow-2xl flex flex-col overflow-hidden relative border border-gray-300">
+        
+        <!-- WhatsApp Header -->
+        <div id="headerTheme" class="bg-[#00a884] text-white p-3 flex items-center justify-between shadow-md z-30 transition-colors duration-300">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="editGroupName()" title="क्लिक करके ग्रुप का नाम बदलें">
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shadow text-white font-bold">
+                    👥
+                </div>
+                <div>
+                    <div class="flex items-center space-x-1">
+                        <h1 id="groupTitle" class="font-bold text-base leading-tight">Hello dosto 😊🙂</h1>
+                        <span class="text-xs text-yellow-200" title="एडिट करने के लिए क्लिक करें">✏️</span>
+                    </div>
+                    <p id="statusText" class="text-[11px] text-green-100">कनेक्ट हो रहा है...</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-1 relative">
+                <!-- Search Toggle -->
+                <button onclick="toggleSearchBox()" class="p-2 hover:bg-black/10 rounded-full transition" title="चैट में खोजें">🔍</button>
+                
+                <!-- 3-Dot Menu Button -->
+                <button onclick="toggleThreeDotMenu()" class="p-2 hover:bg-black/10 rounded-full transition text-lg font-bold px-3" title="मेन्यू">⋮</button>
+
+                <!-- 3-Dot Dropdown Menu (WhatsApp Style) -->
+                <div id="threeDotDropdown" class="hidden absolute right-0 top-12 bg-white text-gray-800 shadow-2xl rounded-lg py-2 w-56 z-40 border border-gray-200 text-sm">
+                    <button onclick="showGroupInfoModal(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2"><span>ℹ️</span><span>ग्रुप की जानकारी (Members)</span></button>
+                    <button onclick="editGroupName(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2"><span>✏️</span><span>ग्रुप का नाम बदलें</span></button>
+                    <button onclick="toggleTheme(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2"><span>🌓</span><span>डार्क / लाइट मोड बदलें</span></button>
+                    <button onclick="toggleSearchBox(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2"><span>🔍</span><span>संदेश खोजें</span></button>
+                    <button onclick="clearChatForMe(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2 text-red-600"><span>🧹</span><span>चैट साफ करें (Clear Chat)</span></button>
+                    <button onclick="leaveGroup(); toggleThreeDotMenu();" class="w-full text-left px-4 py-2.5 hover:bg-gray-100 flex items-center space-x-2 text-red-600 font-semibold border-t"><span>🚪</span><span>ग्रुप छोड़ें (Exit Group)</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden Search Bar -->
+        <div id="searchBarContainer" class="hidden bg-white px-3 py-2 border-b border-gray-200 flex items-center space-x-2 z-20 shadow-sm">
+            <input type="text" id="searchInput" placeholder="चैट में संदेश खोजें..." oninput="searchMessages(this.value)" class="w-full bg-gray-100 text-gray-800 text-xs px-3 py-2 rounded-lg focus:outline-none">
+            <button onclick="toggleSearchBox()" class="text-gray-500 text-xs px-2 font-bold">✖</button>
+        </div>
+
+        <!-- Name Entry Setup Screen (No Login Required) -->
+        <div id="setupScreen" class="flex-1 flex flex-col items-center justify-center p-6 bg-[#f0f2f5] text-center z-30">
+            <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+                <div class="text-5xl mb-3">💬</div>
+                <h2 class="text-2xl font-bold text-[#00a884] mb-1">Hello dosto 😊🙂</h2>
+                <p class="text-xs text-gray-500 mb-6">ग्रुप में सीधे जुड़ने के लिए अपना नाम लिखें। यहाँ बिना किसी लिमिट के चैटिंग, वीडियो, फोटो और वॉइस नोट्स शेयर करें।</p>
+                
+                <input type="text" id="userNameInput" placeholder="अपना नाम यहाँ लिखें (जैसे: राहुल)..." onkeypress="if(event.key==='Enter') joinPublicGroup()" class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-sm mb-4 focus:outline-none focus:border-[#00a884] text-gray-800">
+                
+                <button onclick="joinPublicGroup()" class="w-full bg-[#00a884] hover:bg-[#008069] text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">
+                    ग्रुप में प्रवेश करें 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chatScreen" class="hidden flex-1 flex flex-col overflow-hidden relative">
+            
+            <!-- Reply Preview Bar -->
+            <div id="replyPreview" class="hidden bg-white border-l-4 border-[#00a884] px-4 py-2 flex justify-between items-center text-xs shadow-sm z-10">
+                <div class="truncate">
+                    <span id="replySender" class="font-bold text-[#00a884]"></span>
+                    <p id="replyText" class="text-gray-600 truncate"></p>
+                </div>
+                <button onclick="cancelReply()" class="text-gray-400 font-bold ml-2">✖</button>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col whatsapp-wallpaper">
+                <div class="bg-[#fff3c4] text-gray-800 self-center text-[11px] px-4 py-1.5 rounded-lg shadow-sm text-center max-w-[90%] border border-yellow-200">
+                    🔒 सभी संदेश सुरक्षित हैं। ऊपर 3-डॉट मेनू से आप डार्क/लाइट थीम बदल सकते हैं या ग्रुप मेंबर्स देख सकते हैं।
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="hidden px-4 py-1 text-[11px] text-[#00a884] font-semibold bg-white/90"></div>
+
+            <!-- Upload Progress Bar -->
+            <div id="uploadStatus" class="hidden bg-amber-500 text-white text-xs px-4 py-1.5 text-center font-medium">
+                बड़ी फाइल भेजी जा रही है... कृपया प्रतीक्षा करें ⏳
+            </div>
+
+            <!-- Bottom Input Bar -->
+            <div id="inputBarTheme" class="bg-[#f0f2f5] p-3 flex items-center space-x-2 z-20 border-t border-gray-200">
+                <!-- Media Attachment (All files, unlimited MB) -->
+                <label class="cursor-pointer text-gray-600 hover:text-[#00a884] p-2 transition text-lg" title="वीडियो, फोटो या फाइल भेजें">
+                    📎
+                    <input type="file" id="mediaInput" accept="*/*" class="hidden" onchange="sendMediaFile(event)">
+                </label>
+
+                <!-- Voice Note Button -->
+                <button id="micBtn" onclick="toggleAudioRecord()" class="text-gray-600 hover:text-[#00a884] p-2 transition text-lg" title="वॉइस नोट रिकॉर्ड करें">
+                    🎤
+                </button>
+
+                <!-- Message Input -->
+                <input type="text" id="messageInput" placeholder="संदेश टाइप करें..." oninput="handleTyping()" onkeypress="handleKeyPress(event)" class="flex-1 bg-white text-gray-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none border border-gray-300 shadow-sm">
+                
+                <!-- Send Button -->
+                <button onclick="sendMessage()" class="bg-[#00a884] hover:bg-[#008069] text-white w-11 h-11 rounded-xl flex items-center justify-center shadow transition">
+                    ➤
+                </button>
+            </div>
+        </div>
+
+        <!-- Hidden Group Info & Read Receipt Modal -->
+        <div id="infoModal" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <div class="bg-white text-gray-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+                <div class="flex justify-between items-center border-b pb-2 mb-3">
+                    <h3 id="modalTitle" class="font-bold text-base text-[#00a884]">विवरण</h3>
+                    <button onclick="closeInfoModal()" class="text-gray-500 font-bold">✖</button>
+                </div>
+                <div id="modalBody" class="text-xs space-y-2 max-h-60 overflow-y-auto"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
